@@ -16,13 +16,17 @@
   </div>
   <!-- URL bar with navigation buttons -->
   <div id="navContainer" class="flex space-x-2 p-2 m-0">
-    <button id="backBtn" class="px-3 m-0 py-0 bg-gray-300 rounded">⬅️</button>
-    <button id="forwardBtn" class="px-3 m-0 py-0 bg-gray-300 rounded">➡️</button>
+    <button id="backBtn" class="px-1 m-0 p-0 py-0 rounded overflow-hidden">⬅️</button>
+    <button id="forwardBtn" class="px-1 m-0 p-0 py-0 rounded overflow-hidden">➡️</button>
+    <label class="flex items-center space-x-2">
+      <input type="checkbox" id="popupToggle" class="form-checkbox">
+      <span id="popupLabel">Popups on</span>
+    </label>
     <input id="urlBar" type="text" placeholder="Enter URL and press Enter"
            class="p-2 border border-gray-300 rounded flex-1"/>
   </div>
   <!-- Webviews container -->
-  <div id="webviewsContainer" class="relative min-h-0 h-full w-full"></div>
+  <div id="webviewsContainer" class="relative min-h-0 flex-1 w-full overflow-hidden"></div>
 
   <script src="render.js"></script>
 </body>

@@ -39,14 +39,12 @@ class TabManager {
         }
     }
 
-    // Navigate Back
     goBack() {
         if (this.activeTab && this.activeTab.webview.canGoBack()) {
             this.activeTab.webview.goBack();
         }
     }
 
-    // Navigate Forward
     goForward() {
         if (this.activeTab && this.activeTab.webview.canGoForward()) {
             this.activeTab.webview.goForward();
@@ -62,6 +60,7 @@ class TabManager {
             webview: null,
             element: null,
             isActive: false,
+            allowPopups: true,
         };
 
         // Create tab element with Tailwind classes
@@ -88,16 +87,19 @@ class TabManager {
         // Create webview with Tailwind classes
         const webview = document.createElement("webview");
         webview.setAttribute("partition", "persist:custom-browser");
-        webview.setAttribute("allowpopups", "on");
+        //webview.setAttribute("allowpopups", "true");
         webview.setAttribute("webpreferences", "nativeWindowOpen=no");
         webview.id = `webview-${tabId}`;
-        // Start hidden; when active we’ll toggle to flex
         webview.className = "w-full h-full hidden";
         webview.src = tab.url;
 
         webview.addEventListener("new-window", (e) => {
-            e.preventDefault();
-            tabManager.createTab(e.url); // Open in a new tab instead of a new window
+            if (tab.allowPopups) {
+                e.preventDefault();
+                tabManager.createTab(e.url);
+            } else {
+                e.preventDefault(); // Block the popup
+            }
         });
 
         webview.addEventListener("did-navigate", (e) =>
@@ -191,6 +193,29 @@ class TabManager {
             tab.element.querySelector("span.flex-1").textContent = title;
         }
     }
+
+    toggleAllowPopups() {
+        if (this.activeTab) {
+            this.activeTab.allowPopups = !this.activeTab.allowPopups;
+
+            if (this.activeTab.allowPopups) {
+                this.activeTab.webview.setAttribute('allowpopups', 'true');
+                console.log('Popups allowed');
+            } else {
+                this.activeTab.webview.removeAttribute('allowpopups');
+                console.log('Popups blocked');
+            }
+
+            // Reinitialize the webview to apply changes
+            const webview = this.activeTab.webview;
+            const parent = webview.parentElement;
+            parent.removeChild(webview);
+            parent.appendChild(webview);
+
+            console.log(`Popups are now ${this.activeTab.allowPopups ? 'allowed' : 'blocked'}`);
+        }
+    }
+
 }
 
 // Initialize tab manager
@@ -206,25 +231,39 @@ document.addEventListener("DOMContentLoaded", () => {
     const tabBar = document.getElementById("tabBar");
     const urlBar = document.getElementById("navContainer");
 
-    // Load initial state
-    const isHidden = localStorage.getItem("barsHidden") === "true";
-
-    // Toggle function
     const toggleBars = () => {
         const currentlyHidden = tabBar.classList.contains("hidden");
         tabBar.classList.toggle("hidden");
         urlBar.classList.toggle("hidden");
 
-        // Also toggle back and forward buttons
-        
         document.getElementById("backBtn").classList.toggle("hidden");
         document.getElementById("forwardBtn").classList.toggle("hidden");
 
         localStorage.setItem("barsHidden", !currentlyHidden);
     };
 
+    const popupCheckbox = document.getElementById("popupToggle");
+    const popupLabel = document.getElementById("popupLabel");
+
+    const updatePopupLabel = () => {
+        popupLabel.textContent = popupCheckbox.checked ? "Popups off" : "Popups on";
+    };    
+
     // Listen for IPC events from main process
     window.electronAPI.onToggleBars(toggleBars);
+
+    updatePopupLabel();
+
+    popupCheckbox.addEventListener("change", () => {
+        tabManager.toggleAllowPopups();
+        updatePopupLabel();
+    });
+
+    window.electronAPI.onTogglePopups(() => {
+        popupCheckbox.checked = !popupCheckbox.checked;
+        tabManager.toggleAllowPopups();
+        updatePopupLabel();
+    });
 
     window.electronAPI.openNewTab((url) => {
         tabManager.createTab(url);

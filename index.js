@@ -65,6 +65,12 @@ app.whenReady().then(() => {
     }
   });
 
+  globalShortcut.register("CommandOrControl+Shift+P", () => {
+    if (mainWindow) {
+      mainWindow.webContents.send("toggle-popups");
+    }
+  });
+
   app.on("will-quit", () => {
     globalShortcut.unregisterAll();
   });
