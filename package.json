@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "electron .",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "cross-env NODE_ENV=development electron .",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "cross-env NODE_ENV=production electron-packager . MultiTabElectron --platform=win32 --arch=x64 --out=dist --overwrite --win32metadata.CompanyName=\"Endrulis Foundation\" --win32metadata.ProductName=\"MultiTabElectron\" --ignore=node_modules/electron-* --ignore=dist --ignore=\\.git"
   },
   "keywords": [],
   "author": "",
@@ -13,9 +14,14 @@
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "electron": "^35.0.1",
+    "electron-packager": "^17.1.2",
     "electron-reload": "^2.0.0-alpha.1",
     "postcss": "^8.5.3",
     "postcss-loader": "^8.1.1",
     "tailwindcss": "^4.0.14"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.7"
   }
 }

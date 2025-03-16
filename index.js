@@ -1,17 +1,29 @@
-const { app, BrowserWindow, session, ipcMain, globalShortcut, Menu } = require("electron");
+const { app, BrowserWindow, session, globalShortcut } = require("electron");
 const path = require("path");
 
 console.log("Electron version:", process.versions.electron);
 console.log("Chromium version:", process.versions.chrome);
 console.log("Node.js version:", process.versions.node);
 
-
 let mainWindow;
 
-require("electron-reload")(__dirname, {
-  electron: require(`${__dirname}/node_modules/electron`),
-  ignored: /browser-data|node_modules|[\/\\]\./,
-});
+console.log("Running in NODE_ENV:", process.env.NODE_ENV);
+
+// ✅ Only enable `electron-reload` in development
+if (process.env.NODE_ENV === "development") {
+  try {
+    require("electron-reload")(__dirname, {
+      electron: require(`${__dirname}/node_modules/electron`),
+      ignored: /browser-data|node_modules|[\/\\]\./,
+    });
+    console.log("Electron Reload is enabled in Development Mode");
+  } catch (err) {
+    console.error("Failed to load electron-reload:", err);
+  }
+} else {
+  console.log("Running in Production Mode - electron-reload is disabled");
+}
+
 
 app.setPath("userData", path.join(__dirname, "browser-data"));
 
