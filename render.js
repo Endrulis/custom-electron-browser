@@ -87,7 +87,7 @@ class TabManager {
         // Create webview with Tailwind classes
         const webview = document.createElement("webview");
         webview.setAttribute("partition", "persist:custom-browser");
-        //webview.setAttribute("allowpopups", "true");
+        webview.setAttribute("allowpopups", "true");
         webview.setAttribute("webpreferences", "nativeWindowOpen=no");
         webview.id = `webview-${tabId}`;
         webview.className = "w-full h-full hidden";
