@@ -1,6 +1,11 @@
 const { app, BrowserWindow, session, ipcMain, globalShortcut, Menu } = require("electron");
 const path = require("path");
 
+console.log("Electron version:", process.versions.electron);
+console.log("Chromium version:", process.versions.chrome);
+console.log("Node.js version:", process.versions.node);
+
+
 let mainWindow;
 
 require("electron-reload")(__dirname, {
@@ -35,6 +40,7 @@ const createWindow = () => {
       contextIsolation: true,
       webSecurity: true,
       allowRunningInsecureContent: false,
+      setUserAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.6998.44 Safari/537.36",
     });
   });
 

@@ -204,18 +204,22 @@ window.addEventListener("beforeunload", () => {
 // Add hotkey for hiding/showing tab bar and URL bar
 document.addEventListener("DOMContentLoaded", () => {
     const tabBar = document.getElementById("tabBar");
-    const urlBar = document.getElementById("urlBar");
+    const urlBar = document.getElementById("navContainer");
 
     // Load initial state
     const isHidden = localStorage.getItem("barsHidden") === "true";
-    tabBar.classList.toggle("hidden", isHidden);
-    urlBar.classList.toggle("hidden", isHidden);
 
     // Toggle function
     const toggleBars = () => {
         const currentlyHidden = tabBar.classList.contains("hidden");
         tabBar.classList.toggle("hidden");
         urlBar.classList.toggle("hidden");
+
+        // Also toggle back and forward buttons
+        
+        document.getElementById("backBtn").classList.toggle("hidden");
+        document.getElementById("forwardBtn").classList.toggle("hidden");
+
         localStorage.setItem("barsHidden", !currentlyHidden);
     };
 
