@@ -1,10 +1,4 @@
-const {
-  app,
-  BrowserWindow,
-  session,
-  ipcMain,
-  globalShortcut,
-} = require("electron");
+const { app, BrowserWindow, session, ipcMain, globalShortcut, Menu } = require("electron");
 const path = require("path");
 
 let mainWindow;
@@ -25,22 +19,26 @@ const createWindow = () => {
       contextIsolation: true,
       preload: path.join(__dirname, "preload.js"),
       sandbox: true,
-      webviewTag: true,
+      nativeWindowOpen: false,
+      webviewTag: true, // Ensure webview support
       partition: "persist:custom-browser",
       allowRunningInsecureContent: false,
     },
   });
 
   mainWindow.webContents.on("will-attach-webview", (event, webPreferences) => {
-    webPreferences.partition = "persist:custom-browser";
-    webPreferences.nodeIntegration = false;
-    webPreferences.contextIsolation = true;
-    webPreferences.webSecurity = true;
-    webPreferences.allowRunningInsecureContent = false;
+    Object.assign(webPreferences, {
+      nativeWindowOpen: true,
+      allowpopups: true,
+      partition: "persist:custom-browser",
+      nodeIntegration: false,
+      contextIsolation: true,
+      webSecurity: true,
+      allowRunningInsecureContent: false,
+    });
   });
 
   mainWindow.loadFile(path.join(__dirname, "index.html"));
-  mainWindow.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
 };
 
 app.whenReady().then(() => {
@@ -49,7 +47,7 @@ app.whenReady().then(() => {
       responseHeaders: {
         ...details.responseHeaders,
         "Content-Security-Policy": [
-          "default-src 'self' 'unsafe-inline' data: blob: filesystem: http: https: ws: wss:",
+          "default-src 'self' 'unsafe-inline' data: blob: filesystem: http: https: ws: wss:;",
         ],
       },
     });
@@ -64,9 +62,6 @@ app.whenReady().then(() => {
   app.on("will-quit", () => {
     globalShortcut.unregisterAll();
   });
-
-  ipcMain.on("enter-fullscreen", () => mainWindow?.setFullScreen(true));
-  ipcMain.on("exit-fullscreen", () => mainWindow?.setFullScreen(false));
 
   session.defaultSession.webRequest.onBeforeRequest((details, callback) => {
     callback({ cancel: details.url.startsWith("https://example.com") });
